@@ -104,7 +104,7 @@ Crafty.c("Tween", {
 			this._doTween(tween.props, v);
 			if (tween.easing.complete) {
 				this.tweens.splice(i, 1);
-				this._endTween(tween.props);
+				this._endTween(tween.props, tween.callback);
 			}
 		}
 	},
@@ -146,12 +146,15 @@ Crafty.c("Tween", {
 	* ~~~
 	*
 	*/
-	tween: function (props, duration) {
+	tween: function (props, duration, callback) {
 
 		var tween = {
 			props: props,
 			easing: new Crafty.easing(duration)
 		};
+
+        if (typeof callback === "function")
+            tween.callback = callback;
 
 		// Tweens are grouped together by the original function call.
 		// Individual properties must belong to only a single group
@@ -197,10 +200,13 @@ Crafty.c("Tween", {
 	/*
 	* Stops tweening the specified group of properties, and fires the "TweenEnd" event.
 	*/
-	_endTween: function(properties){
+	_endTween: function(properties, callback){
 		for (var propname in properties){
 			delete this.tweenGroup[propname];
 		}
+        if (callback)
+            callback();
+
 		this.trigger("TweenEnd", properties);
 	}
 });
